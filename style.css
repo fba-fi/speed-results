@@ -3,11 +3,15 @@ table.speed_result_table {
     border-top: solid black 2px;
     border-bottom: solid black 2px;
     margin: 0px;
-    margin-left: 1px;
+    margin-left: 0px;
     padding: 0px;
     width: 470px;
     max-width: 470px;
     table-layout:fixed;
+}
+
+.speed_result_table tr {
+    width: 470px;
 }
 
 .speed_result_table th, .speed_result_table td, .speed_result_table tr {
@@ -20,11 +24,6 @@ table.speed_result_table {
     color:black;
 }
 
-input.button_speed.first  {
-    border-width: 1px 1px 0px 1px;
-    margin-left: 0px;
-}
-
 .result_column_position {
     width:10px;
     max-width:20px;
@@ -32,15 +31,21 @@ input.button_speed.first  {
 }
 
 input.button_speed {
-    padding: 1em 3em 1em 3em;
-    margin: 0px 0px 0px 2px;
+    padding: 1em 2em 1em 2em;
+    margin: 0px 0px 2px 0px;
     border: solid #fff;
-    border-width: 1px 1px 0px 0px;
+    border-width: 0px 0px 0px 0px;
     font-weight: normal;
+    width: 80px;
     font-size: 80%;
     background: #eee;
     color: black;
 }
+
+input.button_speed.first  {
+    border-width: 0px 0px 0px 0px;
+}
+
 
 input.button_selected {
     background: #000;
@@ -52,3 +57,29 @@ input.button_speed:hover {
     color: white;
 }
 
+.speed_result_column_0 {
+    margin: 0px;
+    overflow: hidden;
+}
+
+.speed_result_column_0, td.speed_result_column_0 div {
+    width: 20px;
+    max-width: 20px;
+}
+.speed_result_column_1, td.speed_result_column_0 div  {
+    width: 120px;
+    max-width: 120px;
+}
+.speed_result_column_2, td.speed_result_column_2 div {
+    width: 60px;
+    max-width: 60px;
+}
+.speed_result_column_3, td.speed_result_column_3 div {
+    width: 130px;
+    max-width: 130px;
+}
+
+.speed_result_column_4, td.speed_result_column_4 div {
+    width: 130px;
+    max-width: 130px;
+}

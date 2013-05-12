@@ -42,6 +42,21 @@ function get_results_filename() {
 }
 
 
+function cmp_results($a, $b) {
+    $as = str_pad($a[3], 10, "0", STR_PAD_LEFT);
+    $bs = str_pad($b[3], 10, "0", STR_PAD_LEFT);
+    if ($as == $bs) {
+        return 0;
+    }
+    if ( preg_match('/kn/i', $bs) != 1 ) {
+        return -1;
+    }
+    if ( preg_match('/kn/i', $as) != 1 ) {
+        return -1;
+    }
+    return ($as > $bs) ? -1 : 1;
+}
+
 function render_speed_results() {
 
     $speed_output = "";
@@ -65,14 +80,33 @@ function render_speed_results() {
     // Populate sorted result list and collect result classes
     $results = array();
     $classes = array();
+    $years = array();
     $header_classes = "";
+
     foreach ($Reader as $Row)
     {
+
+        // Sortable results list
         array_push($results, $Row);
+
+        // race classes
         $classes[$Row[1]] = $Row[1];
         $header_classes .= "speed_result_$Row[1] ";
+
+        // race years
+        $matches = array();
+        if ( preg_match('/\d\d\d\d/', $Row[0], $matches) == 1) {
+            $year = $matches[0];
+            $years[$year] = $year;
+        }
     }
     array_shift($classes);
+    //$results_header = array_shift($results);
+
+    sort($years);
+    sort($classes);
+
+    uasort ( $results, 'cmp_results' );
 
     // Render page
     $speed_output .= <<<'EOT'
@@ -81,76 +115,99 @@ function render_speed_results() {
     $sj(document).ready(function() {
         $sj('.button_speed').click(function() {
             try {
-
-                $sj(".button_speed").removeClass("button_selected");
+                // Filter results list by class and year
+                $sj("." + this.name).removeClass("button_selected");
                 $sj(this).addClass("button_selected");
 
-                $sj("tr.speed_result_row").hide("fade");
-                $sj("tr." + this.name).show("fade");
+                var result_class = $sj('.button_selected.button_class')[0].value;
+                var result_year = $sj('.button_selected.button_year')[0].value;
 
+                // calculate new positions
                 var position_count = 1;
-                $sj("tr." + this.name + " td.result_column_position").each(function(index,el){
+                $sj(".result_class_" + result_class + '.result_year_' + result_year + ' .speed_result_column_0 div').each(function(index,el) {
                     $sj(el).html(position_count + '.');
                     position_count = position_count + 1;
                 });
 
+                // hide all results
+                $sj(".speed_result_row").fadeOut();
+                // show filtered results
+                $sj(".result_class_" + result_class + '.result_year_' + result_year).delay(200).fadeIn();
+
             } catch(e) { console.log(e) }
         });
+        var year_buttons = $sj('.button_year');
+        year_buttons[year_buttons.length - 1].click();
     });
     </script>
 EOT;
 
     // Buttons for filtering results
-    $speed_output .= "<input type='button' name='speed_result_kaikki' value='kaikki' class='first button_speed button_selected'/>\n";
+    $speed_output .= '<div>';
+    $speed_output .= "<input type='button' name='button_class' value='Luokka' class='first button_speed button_class button_selected'/>\n";
     foreach ($classes as $class) {
-        $speed_output .= "<input type='button' name='speed_result_$class' value='$class' class='button_speed button_speed'/>\n";
+        $speed_output .= "<input type='button' name='button_class' value='$class' class='button_speed button_class'/>\n";
     }
+    $speed_output .= '</div>';
+    $speed_output .= '<div>';
+    $speed_output .= "<input type='button' name='button_year' value='Vuosi' class='first button_speed button_year button_selected'/>\n";
+    foreach ($years as $year) {
+        $speed_output .= "<input type='button' name='button_year' value='$year' class='button_speed button_year button_year_$year'/>\n";
+    }
+    $speed_output .= '</div>';
 
     // Results table
     // first row th, others td
-    $td = "th";
     $position = 0;
+
     $speed_output .= '<table class="speed_result_table">';
 
-    $speed_output .= '<colgroup>';
-    $speed_output .= '<col style="width:20px">';
-    $speed_output .= '<col style="width:100px">';
-    $speed_output .= '<col style="width:50px">';
-    $speed_output .= '<col style="width:100px">';
-    $speed_output .= '<col style="width:100px">';
-    $speed_output .= '</colgroup>';
+    $speed_output .= '<col class="speed_result_column_0" />';
+    $speed_output .= '<col class="speed_result_column_1" />';
+    $speed_output .= '<col class="speed_result_column_2" />';
+    $speed_output .= '<col class="speed_result_column_3" />';
+    $speed_output .= '<col class="speed_result_column_4" />';
 
-    foreach ($results as $Row) {
+    foreach ($results as $result) {
+
+        // race years
+        $matches = array();
+        preg_match('/\d\d\d\d/', $result[0], $matches);
+        $year = $matches[0];
 
         // Position
         if ( $position < 1 ) {
             $speed_output .= "<tr class='speed_result_header'>";
-            $speed_output .= "<$td width='20px' class='result_column_position'>#</$td>";
+            $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>#</div></td>";
         } else {
-            $speed_output .= "<tr class='speed_result_row speed_result_kaikki speed_result_$Row[1]'>";
-            $speed_output .= "<$td width='20px' class='result_column_position'>$position.</$td>";
+            $speed_output .= "<tr class='speed_result_row result_year_Vuosi result_class_Luokka result_class_$result[1] result_year_$year'>";
+            $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>$position.</div></td>";
         }
+
         $position += 1;
 
         // Name of competitor
-        $speed_output .= "<$td>$Row[2]</$td>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_1'><div>$result[2]</div><div>$result[1]</div></td>";
 
         // Speed list
-        $speed_output .= "<$td><div>$Row[3]</div><div>$Row[4]</div><div>$Row[5]</div></$td>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_2'><div>$result[3]</div><div>$result[4]</div></td>";
 
         // Date, place, conditions
-        $speed_output .= "<$td><div>$Row[0]</div><div>$Row[6]</div><div>$Row[7]</div></$td>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$result[0]</div><div>$result[6]</div><div>$result[7]</div></td>";
 
         // Equipment, class, doppler
-        $speed_output .= "<$td><div>$Row[8]</div><div>$Row[1]</div><div>($Row[9])</div></$td>";
-        $speed_output .= "</tr>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$result[8]</div></td>";
 
-        // first row th, others td
-        $td="td";
+        $speed_output .= "</tr>";
 
     }
 
+    if ( $position == 0) {
+        $speed_output .= "<tr><td colspan=5>Ei l&ouml;ytynyt yht&auml;&auml;n tulosta.</td></tr>";
+    }
+
     $speed_output .= "</table>";
+
 
     if ( preg_match( '/xls$/', $results_file) == 1) {
         return utf8_encode($speed_output);
