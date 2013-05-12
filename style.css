@@ -1,0 +1,54 @@
+table.speed_result_table {
+    border-collapse:collapse;
+    border-top: solid black 2px;
+    border-bottom: solid black 2px;
+    margin: 0px;
+    margin-left: 1px;
+    padding: 0px;
+    width: 470px;
+    max-width: 470px;
+    table-layout:fixed;
+}
+
+.speed_result_table th, .speed_result_table td, .speed_result_table tr {
+    text-align: left;
+    margin: 0px;
+    padding: 0.5em;
+    border: solid #aaa;
+    border-width: 1px 0px 1px 0px;
+    overflow:hidden;
+    color:black;
+}
+
+input.button_speed.first  {
+    border-width: 1px 1px 0px 1px;
+    margin-left: 0px;
+}
+
+.result_column_position {
+    width:10px;
+    max-width:20px;
+    min-width:20px;
+}
+
+input.button_speed {
+    padding: 1em 3em 1em 3em;
+    margin: 0px 0px 0px 2px;
+    border: solid #fff;
+    border-width: 1px 1px 0px 0px;
+    font-weight: normal;
+    font-size: 80%;
+    background: #000;
+    color: white;
+}
+
+input.button_selected {
+    background: #d8d8d8;
+    color: black;
+}
+
+input.button_speed:hover {
+    background: #eee;
+    color: black;
+}
+
