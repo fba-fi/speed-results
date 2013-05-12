@@ -38,17 +38,17 @@ input.button_speed {
     border-width: 1px 1px 0px 0px;
     font-weight: normal;
     font-size: 80%;
+    background: #eee;
+    color: black;
+}
+
+input.button_selected {
     background: #000;
     color: white;
 }
 
-input.button_selected {
-    background: #eee;
-    color: black;
-}
-
 input.button_speed:hover {
-    background: #eee;
-    color: black;
+    background: #000;
+    color: white;
 }
 
