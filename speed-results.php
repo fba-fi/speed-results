@@ -193,10 +193,10 @@ EOT;
         $speed_output .= "<td class='speed_result_column speed_result_column_2'><div>$result[3]</div><div>$result[4]</div></td>";
 
         // Date, place, conditions
-        $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$result[0]</div><div>$result[6]</div><div>$result[7]</div></td>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$result[0]</div><div>$result[5]</div><div>$result[6]</div></td>";
 
         // Equipment, class, doppler
-        $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$result[8]</div></td>";
+        $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$result[7]</div></td>";
 
         $speed_output .= "</tr>";
 
