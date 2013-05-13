@@ -149,7 +149,7 @@ function render_speed_results() {
 
 
                 // display only filtered results
-                $sj(".speed_result_row").fadeOut().delay(200);
+                $sj(".speed_result_row").fadeOut();
 
                 // calculate new positions
                 var position_count = 1;
@@ -158,7 +158,7 @@ function render_speed_results() {
                     position_count = position_count + 1;
                 });
 
-                $sj(".result_class_" + result_class + '.result_year_' + result_year).delay(200).fadeIn();
+                $sj(".result_class_" + result_class + '.result_year_' + result_year).delay(300).fadeIn();
 
             } catch(e) { console.log(e) }
         });
