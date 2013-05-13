@@ -48,10 +48,10 @@ function cmp_results($a, $b) {
     if ($as == $bs) {
         return 0;
     }
-    if ( preg_match('/kn/i', $bs) != 1 ) {
-        return -1;
+    if ( preg_match('/kn/', $bs) != 1 ) {
+        return 1;
     }
-    if ( preg_match('/kn/i', $as) != 1 ) {
+    if ( preg_match('/kn/', $as) != 1 ) {
         return -1;
     }
     return ($as > $bs) ? -1 : 1;
