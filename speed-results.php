@@ -83,32 +83,57 @@ function render_speed_results() {
     $years = array();
     $header_classes = "";
 
-    foreach ($Reader as $Row)
-    {
+    $results_sorted = array();
 
-        // Sortable results list
-        array_push($results, $Row);
+    foreach ($Reader as $Row) {
+        array_push($results_sorted, $Row);;
+    }
 
-        // race classes
+    $header_row = array_shift($results_sorted);
+
+    uasort ( $results_sorted, 'cmp_results' );
+
+    foreach ($results_sorted as $Row) {
+
+        // All race classes
         $classes[$Row[1]] = $Row[1];
         $header_classes .= "speed_result_$Row[1] ";
 
-        // race years
-        $matches = array();
+        // All race years
         if ( preg_match('/\d\d\d\d/', $Row[0], $matches) == 1) {
             $year = $matches[0];
             $years[$year] = $year;
+        } else {
+            continue;
         }
+
+        // Competitor
+        $competitor = preg_replace('/[^a-z]/', '', strtolower($Row[2]));
+
+        // Best result per competitor for current year stats
+        $current_result = str_pad($Row[3], 10, "0", STR_PAD_LEFT);
+        $stored_result = str_pad($results[$year][$competitor][3], 10, "0", STR_PAD_LEFT);
+
+        if ( $current_result > $stored_result ) {
+            $results[$year][$competitor] = $Row;
+        }
+
+        // Best result per competitor for all time stats
+        $current_result = str_pad($Row[3], 10, "0", STR_PAD_LEFT);
+        $stored_result = str_pad($results['Vuosi'][$competitor][3], 10, "0", STR_PAD_LEFT);
+
+        if ( $current_result > $stored_result ) {
+            $results['Vuosi'][$competitor] = $Row;
+        }
+
     }
-    array_shift($classes);
-    //$results_header = array_shift($results);
 
     sort($years);
     sort($classes);
 
-    uasort ( $results, 'cmp_results' );
-
     // Render page
+
+    // jQuery for dynamic table filtering
     $speed_output .= <<<'EOT'
     <script type="text/javascript">
     var $sj = jQuery.noConflict();
@@ -122,6 +147,10 @@ function render_speed_results() {
                 var result_class = $sj('.button_selected.button_class')[0].value;
                 var result_year = $sj('.button_selected.button_year')[0].value;
 
+
+                // display only filtered results
+                $sj(".speed_result_row").fadeOut().delay(200);
+
                 // calculate new positions
                 var position_count = 1;
                 $sj(".result_class_" + result_class + '.result_year_' + result_year + ' .speed_result_column_0 div').each(function(index,el) {
@@ -129,9 +158,6 @@ function render_speed_results() {
                     position_count = position_count + 1;
                 });
 
-                // hide all results
-                $sj(".speed_result_row").fadeOut();
-                // show filtered results
                 $sj(".result_class_" + result_class + '.result_year_' + result_year).delay(200).fadeIn();
 
             } catch(e) { console.log(e) }
@@ -157,53 +183,62 @@ EOT;
     $speed_output .= '</div>';
 
     // Results table
-    // first row th, others td
-    $position = 0;
 
     $speed_output .= '<table class="speed_result_table">';
 
+    // fuck tables layout!
     $speed_output .= '<col class="speed_result_column_0" />';
     $speed_output .= '<col class="speed_result_column_1" />';
     $speed_output .= '<col class="speed_result_column_2" />';
     $speed_output .= '<col class="speed_result_column_3" />';
     $speed_output .= '<col class="speed_result_column_4" />';
 
-    foreach ($results as $result) {
+    // Print Header
 
-        // race years
-        $matches = array();
-        preg_match('/\d\d\d\d/', $result[0], $matches);
-        $year = $matches[0];
+    $speed_output .= "<tr class='speed_result_header'>";
 
-        // Position
-        if ( $position < 1 ) {
-            $speed_output .= "<tr class='speed_result_header'>";
-            $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>#</div></td>";
-        } else {
-            $speed_output .= "<tr class='speed_result_row result_year_Vuosi result_class_Luokka result_class_$result[1] result_year_$year'>";
-            $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>$position.</div></td>";
+    // Position
+    $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>#</div></td>";
+
+    // Name of competitor
+    $speed_output .= "<td class='speed_result_column speed_result_column_1'><div>$header_row[2]</div><div>$header_row[1]</div></td>";
+
+    // Speed list
+    $speed_output .= "<td class='speed_result_column speed_result_column_2'><div>$header_row[3]</div><div>$header_row[4]</div></td>";
+
+    // Date, place, conditions
+    $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$header_row[0]</div><div>$header_row[5]</div><div>$header_row[6]</div></td>";
+
+    // Equipment, class, doppler
+    $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$header_row[7]</div></td>";
+
+    $speed_output .= "</tr>";
+
+    // Print Results
+    foreach ($results as $year => $year_results) {
+        $position = 1;
+        foreach ($year_results as $result) {
+
+                $speed_output .= "<tr class='speed_result_row result_class_Luokka result_class_$result[1] result_year_$year'>";
+
+                // Position
+                $speed_output .= "<td class='speed_result_column speed_result_column_0'><div>$position.</div></td>";
+                $position += 1;
+
+                // Name of competitor
+                $speed_output .= "<td class='speed_result_column speed_result_column_1'><div>$result[2]</div><div>$result[1]</div></td>";
+
+                // Speed list
+                $speed_output .= "<td class='speed_result_column speed_result_column_2'><div>$result[3]</div><div>$result[4]</div></td>";
+
+                // Date, place, conditions
+                $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$result[0]</div><div>$result[5]</div><div>$result[6]</div></td>";
+
+                // Equipment, class, doppler
+                $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$result[7]</div></td>";
+
+                $speed_output .= "</tr>";
         }
-
-        $position += 1;
-
-        // Name of competitor
-        $speed_output .= "<td class='speed_result_column speed_result_column_1'><div>$result[2]</div><div>$result[1]</div></td>";
-
-        // Speed list
-        $speed_output .= "<td class='speed_result_column speed_result_column_2'><div>$result[3]</div><div>$result[4]</div></td>";
-
-        // Date, place, conditions
-        $speed_output .= "<td class='speed_result_column speed_result_column_3'><div>$result[0]</div><div>$result[5]</div><div>$result[6]</div></td>";
-
-        // Equipment, class, doppler
-        $speed_output .= "<td class='speed_result_column speed_result_column_4'><div>$result[7]</div></td>";
-
-        $speed_output .= "</tr>";
-
-    }
-
-    if ( $position == 0) {
-        $speed_output .= "<tr><td colspan=5>Ei l&ouml;ytynyt yht&auml;&auml;n tulosta.</td></tr>";
     }
 
     $speed_output .= "</table>";
