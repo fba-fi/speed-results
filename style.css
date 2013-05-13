@@ -31,12 +31,13 @@ table.speed_result_table {
 }
 
 input.button_speed {
-    padding: 1em 2em 1em 2em;
+    padding: 1em 0.5em 1em 0.5em;
+    text-align: center;
     margin: 0px 0px 2px 0px;
     border: solid #fff;
     border-width: 0px 0px 0px 0px;
     font-weight: normal;
-    width: 80px;
+    width: 70px;
     font-size: 80%;
     background: #eee;
     color: black;
